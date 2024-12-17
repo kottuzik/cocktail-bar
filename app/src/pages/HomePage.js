@@ -1,30 +1,42 @@
-import React, {Fragment, useState} from "react";
-import { fetchCocktails } from "../services/api";
+import React, {useState, useEffect} from "react";
+import {fetchCocktails, fetchRandomCocktails} from "../services/api";
 import SearchBar from "../components/SearchBar";
 
 const HomePage = () => {
     const [cocktails, setCocktails] = useState([])
 
+    useEffect(() => {
+        const loadRandomCocktails = async () => {
+            const data = await fetchRandomCocktails();
+            setCocktails(data);
+        };
+        loadRandomCocktails();
+    }, []);
+
     const handleSearch = async (searchTerm) => {
         const data = await fetchCocktails(searchTerm)
         setCocktails(data || []);
     }
-    return(
+    return (
         <main>
             <h2>Welcome to Cocktail Bar</h2>
-            <SearchBar onSearch={handleSearch} />
-            <div>
-                {cocktails.map((cocktail) => {
-                   return(
-                       <div key={cocktail.idDrink}>
-                           <p>
-                               {cocktail.strDrink}
-                           </p>
-                           <img src={cocktail.strDrinkThumb} alt="cocktail.strDrinkThumb" width="100"/>
-                       </div>
-                   )
-                })}
-            </div>
+            <SearchBar onSearch={handleSearch}/>
+            <ul className="cocktails-list">
+                {cocktails.length > 0 ? (
+                    cocktails.map((cocktail) => (
+                        <li key={cocktail.idDrink} className="cocktails-item">
+                            <p>{cocktail.strDrink}</p>
+                            <img
+                                src={cocktail.strDrinkThumb}
+                                alt={cocktail.strDrink}
+                                width="100"
+                            />
+                        </li>
+                    ))
+                ) : (
+                    <p>No cocktails found</p>
+                )}
+            </ul>
         </main>
     )
 }
